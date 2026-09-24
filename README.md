@@ -11,10 +11,11 @@ Works on Chrome and all Chromium-based browsers (Edge, Brave, Opera, Vivaldi, an
 
 ## Install (unpacked)
 
-1. Open your browser's extensions page (e.g. `chrome://extensions`, `edge://extensions`, `brave://extensions`).
-2. Turn on **Developer mode**.
-3. Click **Load unpacked** and select this folder.
-4. If an older build was already loaded, click **Reload** on it.
+1. Download the latest release and extract the .zip file.
+2. Open your browser's extensions page (e.g. `chrome://extensions`, `edge://extensions`, `brave://extensions`).
+3. Turn on **Developer mode**.
+4. Click **Load unpacked** and select this folder.
+5. If an older build was already loaded, click **Reload** on it.
 
 ## How to use
 
