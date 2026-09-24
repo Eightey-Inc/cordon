@@ -50,4 +50,4 @@ No network calls, no analytics, no accounts. Only http(s) tabs in normal windows
 Published and operated by Eightey Inc.
 
 - **Eightey** — core features and UI
-- **ia** — helper and session backup developer
+- **bitown** — bug fixes and popup development
