@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Cordon</title>
+<link rel="stylesheet" href="../shared/ui.css"></head>
+<body><div class="popup">
+  <header>
+    <div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div>
+    <span class="pill">Beta 1.0.3</span>
+  </header>
+  <section id="status" class="status" data-state="off">
+    <span class="state-ic"><i class="i" id="stateIcon" data-icon="shield"></i></span>
+    <div class="grow"><div class="title" id="label">Loading</div><div class="muted small" id="detail"></div></div>
+    <label class="switch"><input id="toggle" type="checkbox" role="switch" aria-label="Protect this window"><span></span></label>
+  </section>
+  <button id="goto" class="btn primary block" hidden>Activate now <i class="i" data-icon="arrow"></i></button>
+  <section class="section">
+    <div class="eyebrow">Session backup</div>
+    <div class="line"><i class="i" data-icon="layers"></i><span id="backup"></span></div>
+    <div class="btns">
+      <button id="restore" class="btn"><i class="i" data-icon="restore"></i>Restore last session</button>
+      <button id="recovery" class="btn ghost">All snapshots</button>
+    </div>
+  </section>
+  <footer>
+    <button id="settings" class="btn ghost"><i class="i" data-icon="sliders"></i>Settings</button>
+    <span class="muted small"><i class="i" data-icon="lock"></i>Stored on this device</span>
+  </footer>
+</div><script type="module" src="popup.js"></script></body></html>

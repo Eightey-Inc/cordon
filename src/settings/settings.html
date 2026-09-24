@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Cordon settings</title>
+<link rel="stylesheet" href="../shared/ui.css"></head>
+<body><div class="page">
+  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0</span></header>
+  <h1>Settings</h1>
+
+  <section class="card">
+    <div class="head"><h2>Close protection</h2><span class="muted">Turned on per window from the toolbar icon.</span></div>
+    <ol class="steps muted">
+      <li>Open the Cordon popup and switch on <b>Protect this window</b>.</li>
+      <li>A regular, unpinned Cordon tab opens. Click <b>Activate protection</b> once.</li>
+      <li>You return to your tabs. Chrome now asks before that window closes.</li>
+    </ol>
+    <p class="body small" style="padding-top:0">Nothing opens at browser startup. Protection is opt-in and must be turned on again in each browser session.</p>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Session backup</h2><span class="muted">A safety net for what protection cannot cover.</span></div>
+    <div class="setting"><div class="grow"><b>Save sessions automatically</b><div class="muted small">Quiet local snapshots of your open tabs.</div></div>
+      <label class="switch"><input id="toggle" type="checkbox" role="switch" aria-label="Save sessions automatically"><span></span></label></div>
+    <div class="setting"><div class="grow"><b>Snapshots to keep</b></div>
+      <select id="max" aria-label="Snapshots to keep"><option>5</option><option>10</option><option>20</option></select></div>
+    <div class="setting"><div class="grow"><b>Saved data</b><div class="muted small" id="cleared">Stored only on this device.</div></div>
+      <button id="clear" class="btn danger"><i class="i" data-icon="trash"></i>Clear all</button></div>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Privacy and permissions</h2></div>
+    <ul>
+      <li><code>storage</code> keeps settings and snapshots on this device.</li>
+      <li><code>tabs</code> reads tab URLs and titles to build snapshots and find the protection tab. Chrome describes this as "read your browsing history". Nothing leaves your device: no analytics, accounts or network requests.</li>
+      <li>Only http(s) tabs in normal windows are saved; incognito is excluded. Snapshots hold full URLs, so clear them on shared computers.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Limits</h2></div>
+    <ul>
+      <li>Extensions cannot intercept the X button. Protection relies on Chrome's own confirmation, which needs your click and uses Chrome's generic wording.</li>
+      <li>Crashes, force quit, OS shutdown and some keyboard exits may skip the prompt. Incognito windows are not supported.</li>
+      <li>Restoring a large session opens every tab at once and can use a lot of memory.</li>
+    </ul>
+  </section>
+  <p class="muted small">Version <span id="ver"></span></p>
+</div><script type="module" src="settings.js"></script></body></html>

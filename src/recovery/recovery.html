@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Cordon snapshots</title>
+<link rel="stylesheet" href="../shared/ui.css"><style>
+details.card summary { list-style:none; display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+details.card summary::-webkit-details-marker { display:none; }
+details[open] summary { border-bottom:1px solid var(--line); }
+.tabs { padding:8px; display:flex; flex-direction:column; }
+.tabs .w { padding:8px 8px 2px; }
+.tab { display:flex; flex-direction:column; align-items:flex-start; text-align:left; padding:6px 8px; border:0; background:none; font:inherit; color:var(--fg); border-radius:8px; cursor:pointer; }
+.tab:hover { background:var(--surface); } .tab span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+</style></head>
+<body><div class="page">
+  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0</span></header>
+  <div><h1>Saved sessions</h1><p class="muted">Snapshots stay on this device. Restoring opens the tabs in new windows.</p></div>
+  <div id="list" style="display:flex;flex-direction:column;gap:12px"></div>
+</div><script type="module" src="recovery.js"></script></body></html>
