@@ -1,4 +1,4 @@
-// CLoops service worker: (1) opt-in, per-window close protection via one guardian tab that the
+// Cordon service worker: (1) opt-in, per-window close protection via one guardian tab that the
 // user arms with a click; (2) quiet local session snapshots as a backup.
 // Nothing here runs at startup, and no tab is ever created without a user request.
 import { getSettings } from '../shared/storage.js';
@@ -18,7 +18,7 @@ async function save() {
     const { history = [] } = await chrome.storage.local.get('history');
     await chrome.storage.local.set({ history: addSnapshot(history, snap, s.maxSnapshots) });
   } catch (e) {
-    console.warn('CLoops: snapshot failed:', e.message); // no URLs logged
+    console.warn('Cordon: snapshot failed:', e.message); // no URLs logged
   }
 }
 

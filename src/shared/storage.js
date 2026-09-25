@@ -4,7 +4,7 @@ export async function getSettings() {
   try {
     return { ...DEFAULT_SETTINGS, ...(await chrome.storage.local.get(Object.keys(DEFAULT_SETTINGS))) };
   } catch (e) {
-    console.warn('Cloops: storage read failed', e.message);
+    console.warn('Cordon: storage read failed', e.message);
     return { ...DEFAULT_SETTINGS };
   }
 }

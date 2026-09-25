@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Cordon",
-  "version": "1.0.3",
-  "version_name": "Beta 1.0.3",
+  "version": "1.0.5",
+  "version_name": "Beta 1.0.5",
   "description": "Cordon is a lightweight, Open-Source, privacy-first Browser extension designed to put a safety net around your browsing.",
   "minimum_chrome_version": "116",
   "permissions": [

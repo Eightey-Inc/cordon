@@ -1,6 +1,6 @@
 // Node tests against a MOCKED chrome API. They check our logic, not Chrome's behavior.
 import assert from 'node:assert/strict';
-import { buildSnapshot, addSnapshot, countTabs } from '../src/shared/snapshot.js';
+import { buildSnapshot, addSnapshot, countTabs, renameSnapshot, deleteSnapshot } from '../src/shared/snapshot.js';
 
 let n = 0; const ok = (m) => console.log('ok', ++n, m);
 const tab = (url, x = {}) => ({ url, title: 't', ...x });
@@ -15,6 +15,22 @@ assert.equal(addSnapshot(h, { ...snap, time: 2000 }, 3).length, 1); ok('dedupes 
 h = addSnapshot(h, buildSnapshot([{ tabs: [tab('https://a.com'), tab('https://c.com'), tab('https://d.com')] }], 5000), 3);
 h = addSnapshot(h, buildSnapshot([{ tabs: [tab('https://a.com')] }], 6000), 3);
 assert.equal(h.length, 2); assert.equal(countTabs(h[1]), 3); ok('keeps fuller snapshot on big drop');
+
+// --- rename / delete / id persistence
+let r = addSnapshot([], buildSnapshot([{ tabs: [tab('https://a.com')] }], 1000), 30);
+const id0 = r[0].id;
+r = renameSnapshot(r, id0, '  Work stuff  ');
+assert.equal(r[0].name, 'Work stuff'); ok('rename trims whitespace and stores custom name');
+r = addSnapshot(r, buildSnapshot([{ tabs: [tab('https://a.com'), tab('https://b.com')] }], 1500), 30);
+assert.equal(r[0].id, id0); assert.equal(r[0].name, 'Work stuff'); ok('custom name and id survive an in-place snapshot update');
+r = renameSnapshot(r, id0, '   ');
+assert.equal(r[0].name, null); ok('renaming to blank clears the custom name');
+const before = r.length;
+r = deleteSnapshot(r, id0);
+assert.equal(r.length, before - 1); assert.ok(!r.find((x) => x.id === id0)); ok('delete removes only the targeted snapshot');
+let cap = [];
+for (let i = 0; i < 35; i++) cap = addSnapshot(cap, buildSnapshot([{ tabs: [tab(`https://x${i}.com`)] }], 100000 + i * 700000), 30);
+assert.equal(cap.length, 30); ok('history is capped at 30 when maxSnapshots is 30');
 
 // --- mocked chrome
 const L = {}; const ev = (k) => ({ addListener: (f) => (L[k] = f) });

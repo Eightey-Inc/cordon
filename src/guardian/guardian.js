@@ -1,10 +1,11 @@
 // The beforeunload handler is added only AFTER a real user gesture, so Chrome never blocks
 // a prompt for a frame without activation. No synthetic events, no retries.
 import { mountIcons, setIcon } from '../shared/icons.js';
+import { initTheme } from '../shared/theme.js';
 
 const $ = (id) => document.getElementById(id);
 const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
-mountIcons();
+initTheme(); mountIcons();
 
 chrome.runtime.onMessage.addListener((m, _s, send) => {
   if (m.type === 'disarm') { removeEventListener('beforeunload', handler); send(true); }

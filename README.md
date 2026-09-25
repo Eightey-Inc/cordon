@@ -1,6 +1,10 @@
-# Cordon Protection
+# Cordon Protection (Beta 1.0.5)
 
 A free, open-source Chromium extension that asks for confirmation before you close a window, so you don't lose your tabs by accident.
+
+- **Source:** https://github.com/Eightey-Inc/cordon
+- **Website:** https://getcordon.vercel.app
+
 ## What it is
 
 Cordon Protection adds a native confirmation dialog when you try to close a protected window. It also keeps local session snapshots you can restore from, just in case.
@@ -36,6 +40,11 @@ When you close a protected window, the browser asks for confirmation. Cancel kee
 
 Snapshots (URL, title, pinned state) are saved locally and can be restored from the popup or the snapshots page. Restoring re-pins tabs that were pinned when saved. Nothing restores automatically.
 
+On the snapshots page you can:
+- **Rename** a snapshot: click the pencil next to its title and type a name. Leave it blank to go back to the default date-based title. The name is kept even as that snapshot keeps auto-updating in the background.
+- **Delete** a snapshot: click the trash icon once to arm it (it turns red and asks for a second click), then click again within a few seconds to remove it. Clicking elsewhere cancels.
+- **Keep more history**: choose 5, 10, 20 or up to 30 snapshots in Settings.
+
 ## Permissions
 
 - **storage** — settings, snapshots, and temporary guardian state.
@@ -50,4 +59,4 @@ No network calls, no analytics, no accounts. Only http(s) tabs in normal windows
 Published and operated by Eightey Inc.
 
 - **Eightey** — core features and UI
-- **bitown** — bug fixes and popup development
+- **bitown** — head development and handler

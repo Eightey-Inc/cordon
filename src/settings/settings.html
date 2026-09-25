@@ -1,9 +1,21 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Cordon settings</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../icons/icon32.png">
 <link rel="stylesheet" href="../shared/ui.css"></head>
 <body><div class="page">
-  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0</span></header>
+  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0.5</span></header>
   <h1>Settings</h1>
+
+  <section class="card">
+    <div class="head"><h2>Appearance</h2><span class="muted">Applies everywhere in Cordon.</span></div>
+    <div class="setting"><div class="grow"><b>Theme</b></div>
+      <div class="segmented" id="theme" role="group" aria-label="Theme">
+        <button type="button" data-value="system" aria-pressed="false"><i class="i" data-icon="monitor"></i>Auto</button>
+        <button type="button" data-value="light" aria-pressed="false"><i class="i" data-icon="sun"></i>Light</button>
+        <button type="button" data-value="dark" aria-pressed="false"><i class="i" data-icon="moon"></i>Dark</button>
+      </div>
+    </div>
+  </section>
 
   <section class="card">
     <div class="head"><h2>Close protection</h2><span class="muted">Turned on per window from the toolbar icon.</span></div>
@@ -20,7 +32,7 @@
     <div class="setting"><div class="grow"><b>Save sessions automatically</b><div class="muted small">Quiet local snapshots of your open tabs.</div></div>
       <label class="switch"><input id="toggle" type="checkbox" role="switch" aria-label="Save sessions automatically"><span></span></label></div>
     <div class="setting"><div class="grow"><b>Snapshots to keep</b></div>
-      <select id="max" aria-label="Snapshots to keep"><option>5</option><option>10</option><option>20</option></select></div>
+      <select id="max" aria-label="Snapshots to keep"><option>5</option><option>10</option><option>20</option><option>30</option></select></div>
     <div class="setting"><div class="grow"><b>Saved data</b><div class="muted small" id="cleared">Stored only on this device.</div></div>
       <button id="clear" class="btn danger"><i class="i" data-icon="trash"></i>Clear all</button></div>
   </section>
@@ -41,6 +53,13 @@
       <li>Crashes, force quit, OS shutdown and some keyboard exits may skip the prompt. Incognito windows are not supported.</li>
       <li>Restoring a large session opens every tab at once and can use a lot of memory.</li>
     </ul>
+  </section>
+  <section class="card">
+    <div class="head"><h2>Project</h2></div>
+    <div class="setting"><div class="grow"><b>Source code</b><div class="muted small">github.com/Eightey-Inc/cordon</div></div>
+      <a class="btn" href="https://github.com/Eightey-Inc/cordon" target="_blank" rel="noopener noreferrer"><i class="i" data-icon="code"></i>View</a></div>
+    <div class="setting"><div class="grow"><b>Website</b><div class="muted small">getcordon.vercel.app</div></div>
+      <a class="btn" href="https://getcordon.vercel.app" target="_blank" rel="noopener noreferrer"><i class="i" data-icon="globe"></i>Visit</a></div>
   </section>
   <p class="muted small">Version <span id="ver"></span></p>
 </div><script type="module" src="settings.js"></script></body></html>

@@ -3,12 +3,13 @@ import { countTabs } from '../shared/snapshot.js';
 import { restoreWindows } from '../shared/restore.js';
 import { RECOVERY_PATH } from '../shared/constants.js';
 import { mountIcons, setIcon } from '../shared/icons.js';
+import { initTheme, cycleTheme, THEME_ICON, THEME_LABEL } from '../shared/theme.js';
 
 const $ = (id) => document.getElementById(id);
 const send = (m) => chrome.runtime.sendMessage(m);
 const TEXT = {
   off: ['Not protected', 'Turn on to confirm before this window closes.', 'shield'],
-  'needs-click': ['One click to finish', 'Not active yet. Click the CLoops tab.', 'alert'],
+  'needs-click': ['One click to finish', 'Not active yet. Click the Cordon tab.', 'alert'],
   armed: ['Protected', 'Chrome will ask before this window closes.', 'shield-check'],
 };
 let windowId;
@@ -42,5 +43,13 @@ $('restore').addEventListener('click', async () => {
 });
 $('recovery').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL(RECOVERY_PATH) }));
 $('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
-mountIcons(); render();
+
+async function renderTheme() {
+  const { theme } = await getSettings();
+  setIcon($('theme').firstElementChild, THEME_ICON[theme]);
+  $('theme').title = `Theme: ${THEME_LABEL[theme]} (click to change)`;
+}
+$('theme').addEventListener('click', async () => { await cycleTheme(); renderTheme(); });
+
+mountIcons(); initTheme().then(renderTheme); render();
 setInterval(render, 1500);
