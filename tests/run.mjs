@@ -1,6 +1,6 @@
 // Node tests against a MOCKED chrome API. They check our logic, not Chrome's behavior.
 import assert from 'node:assert/strict';
-import { buildSnapshot, addSnapshot, countTabs, renameSnapshot, deleteSnapshot } from '../src/shared/snapshot.js';
+import { buildSnapshot, addSnapshot, countTabs, renameSnapshot, deleteSnapshot, mergeHistory } from '../src/shared/snapshot.js';
 
 let n = 0; const ok = (m) => console.log('ok', ++n, m);
 const tab = (url, x = {}) => ({ url, title: 't', ...x });
@@ -32,9 +32,18 @@ let cap = [];
 for (let i = 0; i < 35; i++) cap = addSnapshot(cap, buildSnapshot([{ tabs: [tab(`https://x${i}.com`)] }], 100000 + i * 700000), 30);
 assert.equal(cap.length, 30); ok('history is capped at 30 when maxSnapshots is 30');
 
+// --- import / merge
+const base = addSnapshot([], buildSnapshot([{ tabs: [tab('https://keep.com')] }], 1000), 30);
+const importedGood = [{ id: 'ext-1', time: 2000, name: 'Imported', windows: [{ tabs: [{ url: 'https://imported.com', title: 'x', pinned: false }] }] }];
+const importedBad = [{ id: 'bad', time: 3000, windows: 'nope' }, { time: 4000, windows: [{ tabs: [{ url: 'javascript:evil()' }] }] }];
+const mergedRes = mergeHistory(base, [...importedGood, ...importedBad], 30);
+assert.equal(mergedRes.added, 1); assert.equal(mergedRes.skipped, 2); ok('mergeHistory keeps valid entries, drops malformed ones');
+assert.ok(mergedRes.history.find((s) => s.id === 'ext-1')); assert.ok(mergedRes.history.find((s) => s.id === base[0].id)); ok('mergeHistory keeps both existing and imported snapshots');
+assert.equal(mergeHistory(base, importedGood, 1).history.length, 1); ok('mergeHistory respects the max cap');
+
 // --- mocked chrome
 const L = {}; const ev = (k) => ({ addListener: (f) => (L[k] = f) });
-const st = { local: { history: [] }, session: {}, contexts: [], created: [], removed: [], id: 100 };
+const st = { local: { history: [] }, session: {}, contexts: [], created: [], removed: [], id: 100, windowsList: [] };
 const area = (o) => ({
   get: async (k) => (typeof k === 'string' ? { [k]: o[k] } : Object.fromEntries((Array.isArray(k) ? k : []).map((x) => [x, o[x]]))),
   set: async (v) => Object.assign(o, v), remove: async () => {} });
@@ -44,10 +53,11 @@ globalThis.chrome = {
     update: async () => ({}), query: async (q) => (q.active ? [{ id: 5 }] : []),
     remove: async (ids) => { [].concat(ids).forEach((i) => st.removed.push(i)); st.contexts = st.contexts.filter((c) => ![].concat(ids).includes(c.tabId)); },
     sendMessage: async () => true },
-  windows: { getAll: async () => [], onCreated: ev('wc') },
+  windows: { getAll: async () => st.windowsList, onCreated: ev('wc') },
   runtime: { onInstalled: ev('installed'), onStartup: ev('startup'), onMessage: ev('msg'), getURL: (p) => 'chrome-extension://id/' + p,
     getContexts: async () => st.contexts },
   storage: { local: area(st.local), session: area(st.session) },
+  commands: { onCommand: ev('cmd') },
 };
 await import('../src/background/service-worker.js');
 const send = (m, sender = {}) => new Promise((res) => L.msg(m, sender, res));
@@ -75,4 +85,19 @@ await new Promise((r) => setTimeout(r, 50)); assert.equal(await stat(1), 'off');
 assert.equal(st.created.length, 2); 
 await send({ type: 'unprotect', windowId: 2 }); assert.equal(await stat(2), 'off'); ok('unprotect removes guardian');
 assert.ok(st.created.every((o) => o.pinned !== true)); ok('no created tab is ever pinned');
+
+// --- protect all windows
+st.windowsList = [{ id: 30 }, { id: 31 }, { id: 32, incognito: true }];
+const pa = await send({ type: 'protectAll' });
+assert.equal(pa.count, 2); ok('protectAll reports only normal (non-incognito) windows');
+assert.equal(st.created.filter((c) => c.windowId === 30).length, 1);
+assert.equal(st.created.filter((c) => c.windowId === 31).length, 1);
+assert.ok(!st.created.some((c) => c.windowId === 32)); ok('protectAll arms every normal window and skips incognito');
+
+// --- keyboard shortcut command
+const before2 = st.created.length;
+L.cmd('open-recovery');
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(st.created.length, before2 + 1);
+assert.ok(st.created.at(-1).url.includes('recovery.html')); ok('open-recovery command opens the snapshots page');
 process.exit(0);

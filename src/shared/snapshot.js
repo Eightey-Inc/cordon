@@ -37,3 +37,19 @@ export const renameSnapshot = (history, id, name) => {
   return history.map((s) => (s.id === id ? { ...s, name: trimmed || null } : s));
 };
 export const deleteSnapshot = (history, id) => history.filter((s) => s.id !== id);
+
+// Merges imported snapshots (e.g. from an exported file) into existing history. Malformed
+// entries are dropped silently; entries sharing an id with an existing one are replaced.
+export function mergeHistory(history, imported, max) {
+  const valid = (s) => s && typeof s.time === 'number' && Array.isArray(s.windows)
+    && s.windows.every((w) => Array.isArray(w.tabs) && w.tabs.every((t) => restorable(t.url)));
+  const byId = new Map(history.map((s) => [s.id, s]));
+  let added = 0, skipped = 0;
+  for (const s of imported || []) {
+    if (!valid(s)) { skipped++; continue; }
+    byId.set(s.id || uid(), { id: s.id || uid(), time: s.time, name: s.name || null, windows: s.windows });
+    added++;
+  }
+  const merged = [...byId.values()].sort((a, b) => b.time - a.time).slice(0, Math.max(1, max));
+  return { history: merged, added, skipped };
+}

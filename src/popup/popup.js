@@ -37,12 +37,27 @@ $('toggle').addEventListener('change', async (e) => {
   render();
 });
 $('goto').addEventListener('click', () => send({ type: 'protect', windowId }));
+$('protectAll').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  const label = btn.lastChild; // trailing text node after the icon
+  btn.disabled = true;
+  const r = await send({ type: 'protectAll' });
+  btn.disabled = false;
+  label.textContent = r?.count ? `Protected ${r.count} window${r.count === 1 ? '' : 's'}` : 'Protect all open windows';
+  render();
+  setTimeout(() => { label.textContent = 'Protect all open windows'; }, 2500);
+});
 $('restore').addEventListener('click', async () => {
   const { history = [] } = await chrome.storage.local.get('history');
   if (history[0]) { await restoreWindows(history[0].windows); window.close(); }
 });
 $('recovery').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL(RECOVERY_PATH) }));
 $('settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
+
+chrome.commands?.getAll?.().then((cmds) => {
+  const shortcut = cmds.find((c) => c.name === 'open-recovery')?.shortcut;
+  $('recovery').title = shortcut ? `Shortcut: ${shortcut}` : 'Set a keyboard shortcut in Settings';
+});
 
 async function renderTheme() {
   const { theme } = await getSettings();

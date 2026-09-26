@@ -17,6 +17,9 @@ const P = {
   code: '<path d="M9 8.5L4.5 12 9 15.5M15 8.5L19.5 12 15 15.5"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"/>',
   edit: '<path d="M4 20l.9-3.8L15.6 5.5a1.5 1.5 0 0 1 2.1 0l.8.8a1.5 1.5 0 0 1 0 2.1L7.8 19.1 4 20z"/><path d="M13.8 7.3l3 3"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>',
+  download: '<path d="M12 4v11M7.5 11l4.5 4.5L16.5 11"/><path d="M5 19h14"/>',
+  upload: '<path d="M12 19V8M7.5 12.5L12 8l4.5 4.5"/><path d="M5 19h14"/>',
 };
 const LOGO = '<svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="30" fill="#2447E0"/><path d="M89.2 83.7A32 32 0 1 1 89.2 44.3" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/><circle cx="64" cy="64" r="8" fill="#fff"/></svg>';
 

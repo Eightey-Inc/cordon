@@ -3,7 +3,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../../icons/icon32.png">
 <link rel="stylesheet" href="../shared/ui.css"></head>
 <body><div class="page">
-  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0.5</span></header>
+  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0.6</span></header>
   <h1>Settings</h1>
 
   <section class="card">
@@ -35,6 +35,19 @@
       <select id="max" aria-label="Snapshots to keep"><option>5</option><option>10</option><option>20</option><option>30</option></select></div>
     <div class="setting"><div class="grow"><b>Saved data</b><div class="muted small" id="cleared">Stored only on this device.</div></div>
       <button id="clear" class="btn danger"><i class="i" data-icon="trash"></i>Clear all</button></div>
+    <div class="setting"><div class="grow"><b>Export / import</b><div class="muted small" id="importStatus">Save your snapshots to a file, or load them on another device.</div></div>
+      <div class="btns">
+        <button id="export" class="btn"><i class="i" data-icon="download"></i>Export</button>
+        <button id="importBtn" class="btn"><i class="i" data-icon="upload"></i>Import</button>
+        <input id="importFile" type="file" accept="application/json" hidden>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Keyboard shortcut</h2><span class="muted">Jump to your saved snapshots without the mouse.</span></div>
+    <div class="setting"><div class="grow"><b>Open snapshots</b><div class="muted small">Not set by default, so it can't collide with anything you already use.</div></div>
+      <button id="shortcuts" class="btn">Set shortcut</button></div>
   </section>
 
   <section class="card">

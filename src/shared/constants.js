@@ -1,4 +1,4 @@
-export const VERSION_LABEL = 'Beta 1.0.5';
+export const VERSION_LABEL = 'Beta 1.0.6';
 export const DEFAULT_SETTINGS = { autoSave: true, maxSnapshots: 10, theme: 'system' };
 export const MAX_SNAPSHOTS_CAP = 30;
 export const RECOVERY_PATH = 'src/recovery/recovery.html';

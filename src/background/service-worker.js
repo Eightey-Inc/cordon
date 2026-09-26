@@ -3,7 +3,7 @@
 // Nothing here runs at startup, and no tab is ever created without a user request.
 import { getSettings } from '../shared/storage.js';
 import { buildSnapshot, addSnapshot } from '../shared/snapshot.js';
-import { GUARDIAN_PATH } from '../shared/constants.js';
+import { GUARDIAN_PATH, RECOVERY_PATH } from '../shared/constants.js';
 
 let timer;
 let queue = Promise.resolve();
@@ -102,8 +102,19 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
       respond({ ok: true });
     } else if (msg.type === 'protect') { await protect(msg.windowId); respond({ ok: true }); }
     else if (msg.type === 'unprotect') { await unprotect(msg.windowId); respond({ ok: true }); }
+    else if (msg.type === 'protectAll') {
+      const wins = (await chrome.windows.getAll({ windowTypes: ['normal'] })).filter((w) => !w.incognito);
+      for (const w of wins) await protect(w.id);
+      respond({ ok: true, count: wins.length });
+    }
     else if (msg.type === 'status') respond(await status(msg.windowId));
     else respond(null);
   })().catch((e) => respond({ error: e.message }));
   return true;
+});
+
+// Keyboard shortcut (user-assignable at chrome://extensions/shortcuts; no default is set so it
+// never collides with an existing binding).
+chrome.commands.onCommand.addListener((cmd) => {
+  if (cmd === 'open-recovery') chrome.tabs.create({ url: chrome.runtime.getURL(RECOVERY_PATH) });
 });
