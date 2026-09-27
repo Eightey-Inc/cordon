@@ -40,14 +40,25 @@ export const deleteSnapshot = (history, id) => history.filter((s) => s.id !== id
 
 // Merges imported snapshots (e.g. from an exported file) into existing history. Malformed
 // entries are dropped silently; entries sharing an id with an existing one are replaced.
+// Imported data is untrusted, so it's sanitized to the same shape and limits a normal
+// snapshot would have (no empty windows, no oversized titles).
 export function mergeHistory(history, imported, max) {
-  const valid = (s) => s && typeof s.time === 'number' && Array.isArray(s.windows)
-    && s.windows.every((w) => Array.isArray(w.tabs) && w.tabs.every((t) => restorable(t.url)));
+  const cleanWindows = (windows) => (Array.isArray(windows) ? windows : [])
+    .map((w) => ({
+      tabs: (Array.isArray(w?.tabs) ? w.tabs : [])
+        .filter((t) => restorable(t?.url))
+        .map((t) => ({ url: t.url, title: String(t.title || '').slice(0, 200), pinned: !!t.pinned })),
+    }))
+    .filter((w) => w.tabs.length);
+
   const byId = new Map(history.map((s) => [s.id, s]));
   let added = 0, skipped = 0;
   for (const s of imported || []) {
-    if (!valid(s)) { skipped++; continue; }
-    byId.set(s.id || uid(), { id: s.id || uid(), time: s.time, name: s.name || null, windows: s.windows });
+    if (!s || typeof s.time !== 'number') { skipped++; continue; }
+    const windows = cleanWindows(s.windows);
+    if (!windows.length) { skipped++; continue; }
+    const id = typeof s.id === 'string' && s.id ? s.id : uid();
+    byId.set(id, { id, time: s.time, name: typeof s.name === 'string' ? s.name.trim().slice(0, 80) || null : null, windows });
     added++;
   }
   const merged = [...byId.values()].sort((a, b) => b.time - a.time).slice(0, Math.max(1, max));

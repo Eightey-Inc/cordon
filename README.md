@@ -1,4 +1,4 @@
-# Cordon Protection (Beta 1.0.6)
+# Cordon Protection (Beta 1.0.7)
 
 A free, open-source Chromium extension that asks for confirmation before you close a window, so you don't lose your tabs by accident.
 
@@ -45,6 +45,26 @@ On the snapshots page you can:
 - **Delete** a snapshot: click the trash icon once to arm it (it turns red and asks for a second click), then click again within a few seconds to remove it. Clicking elsewhere cancels.
 - **Keep more history**: choose 5, 10, 20 or up to 30 snapshots in Settings.
 
+## Bugs fixed in 1.0.7
+
+- **Protection could silently turn off after an update.** A leftover "clean up old guardian tabs" step ran on every extension update and closed any tab at the guardian's URL — including a currently-armed one, since that path hasn't changed since 1.0.2. Removed entirely.
+- **Popup icon flicker.** The popup polls its protection status every 1.5s and was redrawing the status icon every time regardless of whether it changed, replaying its entry animation on a timer. It's now only redrawn when the state actually changes.
+- **Race conditions in the service worker.** Registering and arming a guardian read-modified-wrote shared state without the same serialization used for creating tabs. Protecting two windows in quick succession could corrupt or drop that state; a regression test now covers it directly.
+- **Race conditions on the snapshots page.** Rename, delete, undo, and import each read-then-wrote storage independently; two firing close together could lose one. Every write on that page now goes through one serialized queue (`patchHistory` / `clearHistory` in `shared/storage.js`).
+- **Import wasn't fully sanitized.** An imported file could add a window with no tabs or an oversized tab title — things a normal snapshot could never have. Import now applies the same limits.
+- **Rename was hard to find and Escape wasn't a true no-op.** The rename icon was invisible until hover (delete wasn't); it's now always visible. Canceling with Escape no longer writes the unchanged name back to storage.
+- **Theme flash.** Forcing Light or Dark could show a flash of the wrong theme for an instant on load; pages now stay hidden for the one storage read needed to apply it (and always reveal even if that read fails).
+
+## Redesign in 1.0.7
+
+- One consolidated design system in `shared/ui.css` (previously the snapshots page also carried its own inline `<style>` block) — shared elevation, radius, and color tokens across every page.
+- The guardian tab is now a proper card instead of bare centered text, and — like the snapshots page — has a corner button back to Settings. Before, only the popup could reach Settings.
+- Settings sections now have an icon next to each heading for faster scanning.
+- The snapshots page search box has a clear button, and empty/no-results states have a matching icon and message instead of a bare line of text.
+- Popup: status polls (since there's no push event for it), but the backup line now updates from `storage.onChanged` instead of also polling.
+
+None of this has been checked in a real browser. Given the size of this pass, please look closely at: a live guardian tab surviving an actual `chrome://extensions` reload, the popup icon no longer flickering over time, and the visual result in both themes on all four pages.
+
 ## What changed in 1.0.6
 
 - **Protect all windows:** a new button in the popup arms every open normal window in one click, instead of one at a time.
@@ -53,6 +73,23 @@ On the snapshots page you can:
 - **Export / import:** Settings can export all snapshots to a JSON file, and import one back in (merges with what you already have; malformed entries are skipped and reported).
 - **Keyboard shortcut:** an "open snapshots" command is registered but has no default key combo, so it can't collide with anything you already use. Assign one from Settings → Keyboard shortcut, or directly at `chrome://extensions/shortcuts`. Once set, the popup's "All snapshots" button shows it as a tooltip.
 - Fixed along the way: renaming or deleting a snapshot used to collapse every other expanded snapshot on the page, since the whole list re-renders on any change. Expanded state is now tracked and restored.
+
+None of this has been exercised in a real browser. In particular, please check: protecting several real windows at once, that an imported file actually restores correctly, that the keyboard shortcut fires once assigned, and that undo restores a deleted snapshot in the right position.
+
+## What changed in 1.0.5
+
+- **Fixed:** the rename and delete icons on the snapshots page rendered solid black. The dynamically created buttons were missing the wrapper element that carries the icon's color and sizing rules, so the browser fell back to a default black-filled SVG. They now use the same icon markup as the rest of the app and pick up the theme color correctly.
+- **Theme:** Settings has a Light / Dark / Auto (system) control. Auto follows the OS; Light and Dark are pinned regardless of OS setting. The choice is stored and applied on every page (popup, the protection tab, settings, snapshots), and a matching quick-toggle icon sits in the popup header. All icons use the current theme's color automatically, since they're drawn with the theme's text color rather than a fixed one.
+- **Project links:** Settings has a "Project" section linking to the source repository and the website.
+
+This has not been checked in a real browser: please confirm the icons now look right in both themes, that switching themes updates every open Cordon page/tab, and that the links open correctly.
+
+## What changed in 1.0.4
+
+- Snapshots can now be renamed and deleted individually, and history can hold up to 30.
+- Guardian, settings and snapshot pages now declare an explicit tab icon. The previous build had none, so Chromium likely fell back to a generic page icon in the tab strip instead of Cordon's logo — this is the probable cause of the reported "protection icon not visible in guardian tab," though it has not been re-verified in a real browser.
+- Small interface pass: consistent hover/press feedback on buttons, a smoother toggle switch, an animated checkmark when a window becomes protected, and a fade/collapse when a snapshot is deleted. Still no emoji — only the existing custom line icons plus one new one (rename/pencil).
+- New logic (rename, delete, the 30-snapshot cap, and that a custom name survives automatic snapshot updates) is covered by the Node test suite below, but nothing in this release has been exercised in a real Chromium browser yet.
 
 ## Permissions
 
@@ -63,9 +100,13 @@ On the snapshots page you can:
 
 No network calls, no analytics, no accounts. Only http(s) tabs in normal windows are saved. Incognito is excluded.
 
+## Testing
+
+`node tests/run.mjs` runs 22 checks against a **mocked** Chrome API (snapshot logic, rename/delete/cap behavior, and the guardian's per-window state machine). These confirm Cordon's own logic, not how Chromium actually behaves — please test manually in a real browser: rename and delete a few snapshots, save 30+ snapshots and confirm the oldest drop off, and check the guardian tab's icon in the tab strip.
+
 ## Credits
 
 Published and operated by Eightey Inc.
 
 - **Eightey** — core features and UI
-- **bitown** — head development and handler
+- **bitown** — bug fixes and popup development

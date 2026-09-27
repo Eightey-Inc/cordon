@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Cordon settings</title>
+<html lang="en" class="theme-loading"><head><meta charset="utf-8"><title>Cordon settings</title>
 <link rel="icon" type="image/png" sizes="32x32" href="../../icons/icon32.png">
 <link rel="stylesheet" href="../shared/ui.css"></head>
 <body><div class="page">
-  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0.6</span></header>
+  <header><div class="brand"><i class="i" data-icon="logo"></i><b>Cordon</b></div><span class="pill">Beta 1.0.7</span></header>
   <h1>Settings</h1>
 
   <section class="card">
-    <div class="head"><h2>Appearance</h2><span class="muted">Applies everywhere in Cordon.</span></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="monitor"></i><h2>Appearance</h2></div><span class="muted">Applies everywhere in Cordon.</span></div>
     <div class="setting"><div class="grow"><b>Theme</b></div>
       <div class="segmented" id="theme" role="group" aria-label="Theme">
         <button type="button" data-value="system" aria-pressed="false"><i class="i" data-icon="monitor"></i>Auto</button>
@@ -18,7 +18,7 @@
   </section>
 
   <section class="card">
-    <div class="head"><h2>Close protection</h2><span class="muted">Turned on per window from the toolbar icon.</span></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="shield"></i><h2>Close protection</h2></div><span class="muted">Turned on per window from the toolbar icon.</span></div>
     <ol class="steps muted">
       <li>Open the Cordon popup and switch on <b>Protect this window</b>.</li>
       <li>A regular, unpinned Cordon tab opens. Click <b>Activate protection</b> once.</li>
@@ -28,7 +28,7 @@
   </section>
 
   <section class="card">
-    <div class="head"><h2>Session backup</h2><span class="muted">A safety net for what protection cannot cover.</span></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="layers"></i><h2>Session backup</h2></div><span class="muted">A safety net for what protection cannot cover.</span></div>
     <div class="setting"><div class="grow"><b>Save sessions automatically</b><div class="muted small">Quiet local snapshots of your open tabs.</div></div>
       <label class="switch"><input id="toggle" type="checkbox" role="switch" aria-label="Save sessions automatically"><span></span></label></div>
     <div class="setting"><div class="grow"><b>Snapshots to keep</b></div>
@@ -45,13 +45,13 @@
   </section>
 
   <section class="card">
-    <div class="head"><h2>Keyboard shortcut</h2><span class="muted">Jump to your saved snapshots without the mouse.</span></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="keyboard"></i><h2>Keyboard shortcut</h2></div><span class="muted">Jump to your saved snapshots without the mouse.</span></div>
     <div class="setting"><div class="grow"><b>Open snapshots</b><div class="muted small">Not set by default, so it can't collide with anything you already use.</div></div>
       <button id="shortcuts" class="btn">Set shortcut</button></div>
   </section>
 
   <section class="card">
-    <div class="head"><h2>Privacy and permissions</h2></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="lock"></i><h2>Privacy and permissions</h2></div></div>
     <ul>
       <li><code>storage</code> keeps settings and snapshots on this device.</li>
       <li><code>tabs</code> reads tab URLs and titles to build snapshots and find the protection tab. Chrome describes this as "read your browsing history". Nothing leaves your device: no analytics, accounts or network requests.</li>
@@ -60,15 +60,16 @@
   </section>
 
   <section class="card">
-    <div class="head"><h2>Limits</h2></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="alert"></i><h2>Limits</h2></div></div>
     <ul>
       <li>Extensions cannot intercept the X button. Protection relies on Chrome's own confirmation, which needs your click and uses Chrome's generic wording.</li>
       <li>Crashes, force quit, OS shutdown and some keyboard exits may skip the prompt. Incognito windows are not supported.</li>
       <li>Restoring a large session opens every tab at once and can use a lot of memory.</li>
     </ul>
   </section>
+
   <section class="card">
-    <div class="head"><h2>Project</h2></div>
+    <div class="head"><div class="head-title"><i class="i" data-icon="code"></i><h2>Project</h2></div></div>
     <div class="setting"><div class="grow"><b>Source code</b><div class="muted small">github.com/Eightey-Inc/cordon</div></div>
       <a class="btn" href="https://github.com/Eightey-Inc/cordon" target="_blank" rel="noopener noreferrer"><i class="i" data-icon="code"></i>View</a></div>
     <div class="setting"><div class="grow"><b>Website</b><div class="muted small">getcordon.vercel.app</div></div>

@@ -20,6 +20,8 @@ const P = {
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>',
   download: '<path d="M12 4v11M7.5 11l4.5 4.5L16.5 11"/><path d="M5 19h14"/>',
   upload: '<path d="M12 19V8M7.5 12.5L12 8l4.5 4.5"/><path d="M5 19h14"/>',
+  close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/>',
 };
 const LOGO = '<svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="30" fill="#2447E0"/><path d="M89.2 83.7A32 32 0 1 1 89.2 44.3" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/><circle cx="64" cy="64" r="8" fill="#fff"/></svg>';
 

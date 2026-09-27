@@ -6,11 +6,18 @@ const ORDER = ['system', 'light', 'dark'];
 export const THEME_ICON = { system: 'monitor', light: 'sun', dark: 'moon' };
 export const THEME_LABEL = { system: 'Auto (system)', light: 'Light', dark: 'Dark' };
 
-const apply = (theme) => { document.documentElement.dataset.theme = theme; };
+const apply = (theme) => {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.classList.remove('theme-loading'); // reveal now that the real theme is set (see ui.css)
+};
 
 export async function initTheme() {
-  const { theme } = await getSettings();
-  apply(theme);
+  let theme = 'system';
+  try {
+    theme = (await getSettings()).theme || 'system';
+  } finally {
+    apply(theme); // always runs, so a storage error can't leave the page hidden behind theme-loading
+  }
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.theme) apply(changes.theme.newValue || 'system');
   });

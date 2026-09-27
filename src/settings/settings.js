@@ -1,4 +1,4 @@
-import { getSettings, setSettings } from '../shared/storage.js';
+import { getSettings, setSettings, patchHistory, clearHistory } from '../shared/storage.js';
 import { mergeHistory } from '../shared/snapshot.js';
 import { mountIcons } from '../shared/icons.js';
 import { initTheme, setTheme } from '../shared/theme.js';
@@ -23,11 +23,10 @@ $('toggle').addEventListener('change', (e) => setSettings({ autoSave: e.target.c
 $('max').addEventListener('change', async (e) => {
   const max = Number(e.target.value);
   await setSettings({ maxSnapshots: max });
-  const { history = [] } = await chrome.storage.local.get('history');
-  await chrome.storage.local.set({ history: history.slice(0, max) });
+  await patchHistory((h) => h.slice(0, max));
 });
 $('clear').addEventListener('click', async () => {
-  await chrome.storage.local.remove('history');
+  await clearHistory();
   $('cleared').textContent = 'All saved sessions cleared.';
 });
 
@@ -50,9 +49,12 @@ $('importFile').addEventListener('change', async (e) => {
     const items = Array.isArray(data) ? data : data.history;
     if (!Array.isArray(items)) throw new Error('unexpected format');
     const { maxSnapshots } = await getSettings();
-    const { history = [] } = await chrome.storage.local.get('history');
-    const { history: merged, added, skipped } = mergeHistory(history, items, maxSnapshots);
-    await chrome.storage.local.set({ history: merged });
+    let added = 0, skipped = 0;
+    await patchHistory((h) => {
+      const r = mergeHistory(h, items, maxSnapshots);
+      added = r.added; skipped = r.skipped;
+      return r.history;
+    });
     $('importStatus').textContent = skipped
       ? `Imported ${added}, skipped ${skipped} that didn't look like a snapshot.`
       : `Imported ${added} snapshot${added === 1 ? '' : 's'}.`;

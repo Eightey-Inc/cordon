@@ -6,6 +6,7 @@ import { initTheme } from '../shared/theme.js';
 const $ = (id) => document.getElementById(id);
 const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
 initTheme(); mountIcons();
+$('openSettings').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 chrome.runtime.onMessage.addListener((m, _s, send) => {
   if (m.type === 'disarm') { removeEventListener('beforeunload', handler); send(true); }

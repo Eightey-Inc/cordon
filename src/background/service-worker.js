@@ -28,19 +28,15 @@ chrome.tabs.onAttached.addListener(schedule);
 chrome.tabs.onDetached.addListener(schedule);
 chrome.tabs.onUpdated.addListener((_id, info) => { if (info.url || info.status === 'complete' || 'pinned' in info) schedule(); });
 chrome.tabs.onRemoved.addListener((id, info) => {
-  forget(id);
+  serial(() => forget(id));
   if (info.isWindowClosing) clearTimeout(timer); // don't overwrite the snapshot with a half-closed browser
   else schedule();
 });
 
-// One-time cleanup of tabs left behind by the old guardian design (pre-1.0.1).
-chrome.runtime.onInstalled.addListener(async (d) => {
-  if (d.reason !== 'update') return;
-  try {
-    const old = await chrome.tabs.query({ url: chrome.runtime.getURL('src/guardian/*') });
-    if (old.length) await chrome.tabs.remove(old.map((t) => t.id));
-  } catch { /* nothing to clean */ }
-});
+// (Cordon 1.0.7 removed a stale "close leftover guardian tabs from old versions" step that ran
+// on every update. The guardian's path never changed since 1.0.2, so that check matched a
+// currently-armed guardian just as well as a stale one — it could silently disable a window's
+// protection any time the browser updated the extension in the background.)
 
 // ---- Close protection (guardian) ----
 const GUARDIAN_URL = chrome.runtime.getURL(GUARDIAN_PATH);
@@ -89,16 +85,22 @@ async function status(windowId) {
 
 chrome.runtime.onMessage.addListener((msg, sender, respond) => {
   (async () => {
-    const { nonces = {}, prevTabs = {}, armed = {} } = await ss.get(['nonces', 'prevTabs', 'armed']);
     if (msg.type === 'register') {
-      const n = nonces[msg.nonce];
-      if (!n) return respond({ ok: false });
-      delete nonces[msg.nonce]; prevTabs[sender.tab.id] = n.prevTabId;
-      await ss.set({ nonces, prevTabs });
-      respond({ ok: true });
+      respond(await serial(async () => {
+        const { nonces = {}, prevTabs = {} } = await ss.get(['nonces', 'prevTabs']);
+        const n = nonces[msg.nonce];
+        if (!n) return { ok: false };
+        delete nonces[msg.nonce]; prevTabs[sender.tab.id] = n.prevTabId;
+        await ss.set({ nonces, prevTabs });
+        return { ok: true };
+      }));
     } else if (msg.type === 'armed') {
-      armed[sender.tab.id] = true; await ss.set({ armed });
-      try { if (prevTabs[sender.tab.id]) await chrome.tabs.update(prevTabs[sender.tab.id], { active: true }); } catch { /* closed */ }
+      await serial(async () => {
+        const { armed = {}, prevTabs = {} } = await ss.get(['armed', 'prevTabs']);
+        armed[sender.tab.id] = true;
+        await ss.set({ armed });
+        try { if (prevTabs[sender.tab.id]) await chrome.tabs.update(prevTabs[sender.tab.id], { active: true }); } catch { /* closed */ }
+      });
       respond({ ok: true });
     } else if (msg.type === 'protect') { await protect(msg.windowId); respond({ ok: true }); }
     else if (msg.type === 'unprotect') { await unprotect(msg.windowId); respond({ ok: true }); }

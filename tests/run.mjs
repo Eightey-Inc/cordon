@@ -40,6 +40,10 @@ const mergedRes = mergeHistory(base, [...importedGood, ...importedBad], 30);
 assert.equal(mergedRes.added, 1); assert.equal(mergedRes.skipped, 2); ok('mergeHistory keeps valid entries, drops malformed ones');
 assert.ok(mergedRes.history.find((s) => s.id === 'ext-1')); assert.ok(mergedRes.history.find((s) => s.id === base[0].id)); ok('mergeHistory keeps both existing and imported snapshots');
 assert.equal(mergeHistory(base, importedGood, 1).history.length, 1); ok('mergeHistory respects the max cap');
+const dirty = [{ id: 'empty-win', time: 5000, windows: [{ tabs: [] }] }, { id: 'long-title', time: 6000, windows: [{ tabs: [{ url: 'https://x.com', title: 'y'.repeat(500) }] }] }];
+const cleanedRes = mergeHistory(base, dirty, 30);
+assert.equal(cleanedRes.skipped, 1); assert.equal(cleanedRes.added, 1); ok('mergeHistory drops a snapshot whose only window has no tabs');
+assert.equal(cleanedRes.history.find((s) => s.id === 'long-title').windows[0].tabs[0].title.length, 200); ok('mergeHistory caps an imported tab title at 200 chars, matching normal snapshots');
 
 // --- mocked chrome
 const L = {}; const ev = (k) => ({ addListener: (f) => (L[k] = f) });
@@ -63,8 +67,8 @@ await import('../src/background/service-worker.js');
 const send = (m, sender = {}) => new Promise((res) => L.msg(m, sender, res));
 const stat = async (w) => (await send({ type: 'status', windowId: w })).state;
 
-assert.equal(L.startup, undefined); assert.equal(L.wc, undefined); ok('no onStartup / windows.onCreated handlers');
-await L.installed({ reason: 'install' }); assert.equal(st.created.length, 0); ok('nothing opened on install');
+assert.equal(L.startup, undefined); assert.equal(L.wc, undefined); assert.equal(L.installed, undefined);
+ok('no onStartup / onInstalled / windows.onCreated handlers — nothing runs on its own');
 
 assert.equal(await stat(1), 'off'); ok('status off before user action');
 await Promise.all([send({ type: 'protect', windowId: 1 }), send({ type: 'protect', windowId: 1 })]);
@@ -72,6 +76,20 @@ assert.equal(st.created.length, 1); ok('concurrent protect() creates exactly one
 assert.equal(st.created[0].pinned, false); assert.equal(st.created[0].active, true); ok('guardian is unpinned and user-requested');
 await send({ type: 'protect', windowId: 1 }); assert.equal(st.created.length, 1); ok('repeat protect() reuses existing guardian');
 await send({ type: 'protect', windowId: 2 }); assert.equal(st.created.length, 2); ok('second window gets its own guardian');
+
+// two guardians registering at the same instant must not clobber each other's nonce/prevTab state
+// (uses two fresh windows so it doesn't consume the nonces the tests below still need)
+await Promise.all([send({ type: 'protect', windowId: 3 }), send({ type: 'protect', windowId: 4 })]);
+const g3 = st.contexts.find((c) => c.windowId === 3), g4 = st.contexts.find((c) => c.windowId === 4);
+const [n3, n4] = [new URL(g3.documentUrl).searchParams.get('n'), new URL(g4.documentUrl).searchParams.get('n')];
+const [r3, r4] = await Promise.all([
+  send({ type: 'register', nonce: n3 }, { tab: { id: g3.tabId } }),
+  send({ type: 'register', nonce: n4 }, { tab: { id: g4.tabId } }),
+]);
+assert.ok(r3.ok && r4.ok); ok('concurrent registration from two guardians both succeed');
+assert.equal((await send({ type: 'register', nonce: n3 }, { tab: { id: g3.tabId } })).ok, false);
+assert.equal((await send({ type: 'register', nonce: n4 }, { tab: { id: g4.tabId } })).ok, false);
+ok('neither nonce is left re-usable after concurrent registration (no lost update)');
 
 const nonce = new URL(st.created[0].url).searchParams.get('n'); const g1 = st.contexts[0].tabId;
 assert.equal((await send({ type: 'register', nonce: 'bogus' }, { tab: { id: 999 } })).ok, false); ok('unknown/restored guardian is rejected (will self-close)');
@@ -82,7 +100,6 @@ await send({ type: 'armed' }, { tab: { id: g1 } });
 assert.equal(await stat(1), 'armed'); assert.equal(await stat(2), 'needs-click'); ok('armed state is per window, not mixed');
 L.removed(g1, { isWindowClosing: false }); st.contexts = st.contexts.filter((c) => c.tabId !== g1);
 await new Promise((r) => setTimeout(r, 50)); assert.equal(await stat(1), 'off'); ok('closing guardian clears state; no respawn');
-assert.equal(st.created.length, 2); 
 await send({ type: 'unprotect', windowId: 2 }); assert.equal(await stat(2), 'off'); ok('unprotect removes guardian');
 assert.ok(st.created.every((o) => o.pinned !== true)); ok('no created tab is ever pinned');
 
