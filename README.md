@@ -54,10 +54,6 @@ On the snapshots page you can:
 
 No network calls, no analytics, no accounts. Only http(s) tabs in normal windows are saved. Incognito is excluded.
 
-## Testing
-
-`node tests/run.mjs` runs 22 checks against a **mocked** Chrome API (snapshot logic, rename/delete/cap behavior, and the guardian's per-window state machine). These confirm Cordon's own logic, not how Chromium actually behaves — please test manually in a real browser: rename and delete a few snapshots, save 30+ snapshots and confirm the oldest drop off, and check the guardian tab's icon in the tab strip.
-
 ## Credits
 
 - **Eightey** — core features and UI
