@@ -57,4 +57,4 @@ No network calls, no analytics, no accounts. Only http(s) tabs in normal windows
 ## Credits
 
 - **Eightey** — core features and UI
-- **bitown** — head development and handler
+- **codiated** — head development and handler
